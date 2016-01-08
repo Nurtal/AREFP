@@ -6,7 +6,7 @@
 /*                                                                        */
 /*                       Tuesday 7th January 2016                         */
 /*                                                                        */
-/*                           	CERVVAL 		                                */
+/*                           	CERVVAL 		                          */
 /*                                                                        */ 
 /* ---------------------------------------------------------------------- */
 
@@ -251,8 +251,8 @@ public class DataManager {
     public HashMap<String, Integer> buildFPtree(String databaseFilename, Integer supportTreshold){
     	/*
 		* build FPtree from database
-		* return hasmap <node, support>, unsorted
-		* [SEEMS TO BE OK]
+		*
+		* [IN PROGRESS]
     	*/
 
 
@@ -292,41 +292,22 @@ public class DataManager {
 
 
       	/*
-		| -> Test if item is frequent
+		| Test if item is frequent
       	*/
+
 		ArrayList<String> itemToRemove = new ArrayList<String>();
 		for(String item : itemToSupport.keySet()){
 			if(itemToSupport.get(item) < supportTreshold){
 				itemToRemove.add(item);
 			}
-
-
 		}
 		for(String key : itemToRemove){
 			itemToSupport.remove(key);
 		}
-
 		return itemToSupport;
     }
 
 
-
-
-
-    public void mining(){
-    	/*
-		* for mining FP-tree
-		*
-		*
-		* [IN PROGRESS]
-    	*/
-
-
-		
-
-
-
-    }
 
 
 
