@@ -251,8 +251,8 @@ public class DataManager {
     public HashMap<String, Integer> buildFPtree(String databaseFilename, Integer supportTreshold){
     	/*
 		* build FPtree from database
-		*
-		* [IN PROGRESS]
+		* return hasmap <node, support>, unsorted
+		* [SEEMS TO BE OK]
     	*/
 
 
@@ -292,22 +292,50 @@ public class DataManager {
 
 
       	/*
-		| Test if item is frequent
+		| -> Test if item is frequent
       	*/
-
 		ArrayList<String> itemToRemove = new ArrayList<String>();
 		for(String item : itemToSupport.keySet()){
 			if(itemToSupport.get(item) < supportTreshold){
 				itemToRemove.add(item);
 			}
+
+
 		}
 		for(String key : itemToRemove){
 			itemToSupport.remove(key);
 		}
+
 		return itemToSupport;
     }
 
 
+
+
+
+    public void mining(HashMap<String, Integer> fpTree){
+    	/*
+		* for mining FP-tree
+		*
+		* [IN PROGRESS]
+    	*/
+
+
+		if(fpTree.values().size() == 1){
+
+			System.out.println("Tardis");
+
+		}else{
+			System.out.println(fpTree);
+		}
+
+
+
+
+
+
+
+    }
 
 
 
@@ -330,7 +358,11 @@ public class DataManager {
     	DataManager test = new DataManager();
     	test.partitionProjection("DATA/initialDB.data", items);
     	test.parralelProjection("DATA/initialDB.data", items);
-    	test.buildFPtree("DATA/c_parralel_projected_database.data", 3);
+    	HashMap<String,Integer> tree = test.buildFPtree("DATA/p_parralel_projected_database.data", 3);
+
+    	System.out.println("=>"+tree+"<=");
+
+    	test.mining(tree);
 
 
     }
