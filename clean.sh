@@ -1,0 +1,4 @@
+#!/bin/bash
+
+rm DATA/RESULTS/*
+rm DATA/CONDITIONAL_DATABASE/*
