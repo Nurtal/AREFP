@@ -31,9 +31,11 @@ public class Application{
     	listOfPatients.add("DATA/patient2.num");
 
     	test.initialiseTreshold("DATA/PARAMETERS/parameter_phase_II.csv");
-    	test.convertToNumFormat("DATA/data_REAL_PHASE_II.csv", "II", "DATA/realPatient.num");
-    	test.assembleCohorte(listOfPatients, "DATA/cohorte.num");
-    	test.enumerate("DATA/cohorte.num", "DATA/cohorteToMine.num");
+    	//test.convertToNumFormat("DATA/data_REAL_PHASE_II.csv", "II", "DATA/realPatient.num");
+    	//test.assembleCohorte(listOfPatients, "DATA/cohorte.num");
+    	//test.enumerate("DATA/cohorte.num", "DATA/cohorteToMine.num");
+
+    	test.convertPatientFile("DATA/data_REAL_PHASE_II.csv", "II", "DATA/realPatient.num");
 
 
 

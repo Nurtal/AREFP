@@ -6,7 +6,6 @@
 /*                                                                        */
 /*                       		15/01/2016                         */
 /*                                                                        */
-/*                           	CERVVAL 		                          */
 /*                                                                        */ 
 /* ---------------------------------------------------------------------- */
 
@@ -394,7 +393,7 @@ public class DataConverter{
 
 
 
-	public void convertPatientFile(){
+	public void convertPatientFile(String inputFilename, String phase, String outputFile){
 		/*
 		* Convert a patient file to a data file
 		* that can be mined using FP-tree.
@@ -415,7 +414,136 @@ public class DataConverter{
 
 
 
+		HashMap<Integer, String> idForParameterToTreshold = new HashMap<Integer, String>();
+		String patient = "";
 
+		/*- Get Treshold for Parameter-*/
+		if(phase.equals("II")){
+			idForParameterToTreshold = initialiseTreshold("DATA/PARAMETERS/parameter_phase_II.csv");
+		}
+
+
+		int currentParameter = 1;
+		String line = null;
+		try {
+			FileReader fileReader = new FileReader(inputFilename);
+			BufferedReader bufferedReader = new BufferedReader(fileReader); // Always wrap FileReader in BufferedReader.
+			while((line = bufferedReader.readLine()) != null) {
+				String[] lineInArray;
+				lineInArray = line.split("\t");
+				
+				/*- Parsing File & Test Treshold (discretization)
+				* 	-> 1: absent 
+				*	-> 2: low
+				*	-> 3: normal
+				*	-> 4: high
+				* Each parameter is represented by a unique int = {1,2,3,4} - (id_of_parameter * 4) 
+				-*/
+				if(lineInArray[2].equals("PROPORTION")){
+					String valueInString = lineInArray[4].substring(0, lineInArray[4].length()-1);
+					float valueToTest = Float.parseFloat(valueInString);
+					float treshold = Float.parseFloat(idForParameterToTreshold.get(currentParameter));
+					String itemName = lineInArray[1] + "_PROPORTION_over_"+ lineInArray[3]; 
+
+					if(valueToTest == 0.0){
+						itemName +="_absent";
+					}else if(valueToTest < treshold){
+						itemName +="_low";
+					}else if(valueToTest > treshold){
+						itemName+="_high";
+					}else{
+						itemName+="_normal";
+					}
+					patient += itemName+" ";
+					currentParameter++;
+
+
+				}else if(lineInArray[2].equals("ABSOLUTE")){
+					int valueToTest = Integer.parseInt(lineInArray[4]);
+					int treshold = Integer.parseInt(idForParameterToTreshold.get(currentParameter));
+					String itemName = lineInArray[1] + "_ABSOLUTE"; 
+
+
+
+					
+					if(valueToTest == 0.0){
+						itemName +="_absent";
+					}else if(valueToTest < treshold){
+						itemName +="_low";
+					}else if(valueToTest > treshold){
+						itemName+="_high";
+					}else{
+						itemName+="_normal";
+					}
+					patient += itemName+" ";
+					currentParameter++;
+					
+				
+
+
+
+
+				}else if(lineInArray[2].equals("MFI")){
+					float valueToTest = Float.parseFloat(lineInArray[4]);
+					float treshold = Float.parseFloat(idForParameterToTreshold.get(currentParameter));
+					String itemName = lineInArray[1] + "_MFI";
+
+
+					if(valueToTest == 0.0){
+						itemName +="_absent";
+					}else if(valueToTest < treshold){
+						itemName +="_low";
+					}else if(valueToTest > treshold){
+						itemName+="_high";
+					}else{
+						itemName+="_normal";
+					}
+					patient += itemName+" ";
+					currentParameter++;
+
+				}else if(lineInArray[2].equals("TYPE")){
+					// Header, do nothing
+				}else if(lineInArray[2].equals("RATIO")){
+					float valueToTest = Float.parseFloat(lineInArray[4]);
+					float treshold = Float.parseFloat(idForParameterToTreshold.get(currentParameter));
+					String itemName = lineInArray[1] + "_RATIO";
+				
+					if(valueToTest == 0.0){
+						itemName +="_absent";
+					}else if(valueToTest < treshold){
+						itemName +="_low";
+					}else if(valueToTest > treshold){
+						itemName+="_high";
+					}else{
+						itemName+="_normal";
+					}
+					patient += itemName+" ";
+					currentParameter++;
+
+
+				}else{
+					System.out.println("Fuck Biology ... : '" + lineInArray[2] +"' Has nothing to do there, please check line : \n" + line);
+				}				
+			}
+			bufferedReader.close();         
+		}
+		catch(FileNotFoundException ex) {
+			System.out.println("Unable to open file '" + inputFilename + "'");                
+      	}
+      	catch(IOException ex) {
+      		ex.printStackTrace();
+      	}
+
+      	/*-Write Output-*/
+
+      	try{
+    		FileWriter fw = new FileWriter (outputFile);
+    		patient = patient.substring(0, patient.length()-1);
+       	 	fw.write(patient);
+    		fw.close();
+		}catch (IOException exception){
+    		System.out.println ("Error : " + exception.getMessage());
+		}
 
 
 	}
