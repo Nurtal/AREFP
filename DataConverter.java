@@ -213,18 +213,13 @@ public class DataConverter{
 
 
 
-
-
-
-
-
     public void assembleCohorte(List<String> listOfPatients, String cohorteFilename){
     	/*
 		* Concat all files in listOfPatients into
 		* one cohorte file, assume 1 patient = 1 line.
 		* 
 		*
-		* [IN PROGRESS]
+		* [APPROVED]
     	*/
 
 
@@ -408,11 +403,8 @@ public class DataConverter{
 		*	-> close file
 		*
 		*
-		* [IN PROGRESS]
+		* [APPROVED]
 		*/
-
-
-
 
 		HashMap<Integer, String> idForParameterToTreshold = new HashMap<Integer, String>();
 		String patient = "";
@@ -422,7 +414,6 @@ public class DataConverter{
 			idForParameterToTreshold = initialiseTreshold("DATA/PARAMETERS/parameter_phase_II.csv");
 		}
 
-
 		int currentParameter = 1;
 		String line = null;
 		try {
@@ -431,6 +422,13 @@ public class DataConverter{
 			while((line = bufferedReader.readLine()) != null) {
 				String[] lineInArray;
 				lineInArray = line.split("\t");
+
+				/*
+				| Remove undesirable charachter in itemName
+				*/
+				String itemName = lineInArray[1];
+				itemName = itemName.replaceAll("/", "_over_");
+
 				
 				/*- Parsing File & Test Treshold (discretization)
 				* 	-> 1: absent 
@@ -443,7 +441,7 @@ public class DataConverter{
 					String valueInString = lineInArray[4].substring(0, lineInArray[4].length()-1);
 					float valueToTest = Float.parseFloat(valueInString);
 					float treshold = Float.parseFloat(idForParameterToTreshold.get(currentParameter));
-					String itemName = lineInArray[1] + "_PROPORTION_over_"+ lineInArray[3]; 
+					itemName += "_PROPORTION_over_"+ lineInArray[3]; 
 
 					if(valueToTest == 0.0){
 						itemName +="_absent";
@@ -461,10 +459,7 @@ public class DataConverter{
 				}else if(lineInArray[2].equals("ABSOLUTE")){
 					int valueToTest = Integer.parseInt(lineInArray[4]);
 					int treshold = Integer.parseInt(idForParameterToTreshold.get(currentParameter));
-					String itemName = lineInArray[1] + "_ABSOLUTE"; 
-
-
-
+					itemName += "_ABSOLUTE"; 
 					
 					if(valueToTest == 0.0){
 						itemName +="_absent";
@@ -477,17 +472,11 @@ public class DataConverter{
 					}
 					patient += itemName+" ";
 					currentParameter++;
-					
-				
-
-
-
 
 				}else if(lineInArray[2].equals("MFI")){
 					float valueToTest = Float.parseFloat(lineInArray[4]);
 					float treshold = Float.parseFloat(idForParameterToTreshold.get(currentParameter));
-					String itemName = lineInArray[1] + "_MFI";
-
+					itemName += "_MFI";
 
 					if(valueToTest == 0.0){
 						itemName +="_absent";
@@ -506,7 +495,7 @@ public class DataConverter{
 				}else if(lineInArray[2].equals("RATIO")){
 					float valueToTest = Float.parseFloat(lineInArray[4]);
 					float treshold = Float.parseFloat(idForParameterToTreshold.get(currentParameter));
-					String itemName = lineInArray[1] + "_RATIO";
+					itemName += "_RATIO";
 				
 					if(valueToTest == 0.0){
 						itemName +="_absent";
@@ -520,13 +509,12 @@ public class DataConverter{
 					patient += itemName+" ";
 					currentParameter++;
 
-
 				}else{
 					System.out.println("Fuck Biology ... : '" + lineInArray[2] +"' Has nothing to do there, please check line : \n" + line);
 				}				
 			}
 			bufferedReader.close();         
-		}
+		}	
 		catch(FileNotFoundException ex) {
 			System.out.println("Unable to open file '" + inputFilename + "'");                
       	}
@@ -535,7 +523,6 @@ public class DataConverter{
       	}
 
       	/*-Write Output-*/
-
       	try{
     		FileWriter fw = new FileWriter (outputFile);
     		patient = patient.substring(0, patient.length()-1);
@@ -544,9 +531,249 @@ public class DataConverter{
 		}catch (IOException exception){
     		System.out.println ("Error : " + exception.getMessage());
 		}
+	}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	public void generateVirtualPatientFile(String virtualPatientFilename, String phase, Integer idPatient){
+		/*
+		* Write a csv file contening data for a virtual
+		* Patient
+		*
+		* [ALGO] => Check phase
+		*			Open file given in parameter
+		*			Write random value for paremeter
+		*			Close file
+		*
+		*
+		* TODO :  -> adapat to phase I & Inception
+		*		  -> Read min & max for random value generation
+		*
+		* [IN PROGRESS]
+		*/
+
+
+		if(phase == "II"){
+
+			try{
+    		FileWriter fw = new FileWriter(virtualPatientFilename);
+
+    		/*
+			| Header
+    		*/
+			fw.write(idPatient+"\t"+"POPULATION\tTYPE\tREF\tVALUE\n");
+
+			/*
+			| Data - Panel 1
+			*/
+
+			int minimum = 0;
+			int maximum = 180;
+			int value = 0;
+			float percentage = 0;
+
+			value = minimum + (int)(Math.random() * maximum); 
+			fw.write("PANEL_1\tLymphocytes\tABSOLUTE\t\t"+value+"\n");
+			percentage = (float)(Math.random() * maximum); 
+			fw.write("PANEL_1\tLymphocytes\tPROPORTION\tLeukocytes\t"+percentage+"%\n");
+			value = minimum + (int)(Math.random() * maximum);
+			fw.write("PANEL_1\tMonocytes\tABSOLUTE\t\t"+value+"\n");
+			percentage = (float)(Math.random() * maximum);
+			fw.write("PANEL_1\tMonocytes\tPROPORTION\tLeukocytes\t"+percentage+"%\n");
+			value = minimum + (int)(Math.random() * maximum);
+			fw.write("PANEL_1\tPMN\tABSOLUTE\t\t"+value+"\n");
+			percentage = (float)(Math.random() * maximum);
+			fw.write("PANEL_1\tPMN\tPROPORTION\tLeukocytes\t"+percentage+"%\n");
+			value = minimum + (int)(Math.random() * maximum); 
+			fw.write("PANEL_1\tCD3pos_Tcells\tABSOLUTE\t\t"+value+"\n");
+			percentage = (float)(Math.random() * maximum);
+			fw.write("PANEL_1\tCD3pos_Tcells\tPROPORTION\tLeukocytes\t"+percentage+"%\n");
+			percentage = (float)(Math.random() * maximum);
+			fw.write("PANEL_1\tCD3pos_Tcells\tPROPORTION\tLymphocytes\t"+percentage+"%\n");
+			percentage = (float)(Math.random() * maximum);
+			fw.write("PANEL_1\tCD3pos_Tcells\tMFI\tCD3\t"+percentage+"\n");
+			value = minimum + (int)(Math.random() * maximum);
+			fw.write("PANEL_1\tCD4pos_Tcells\tABSOLUTE\t\t"+value+"\n");
+			percentage = (float)(Math.random() * maximum);
+			fw.write("PANEL_1\tCD4pos_Tcells\tPROPORTION\tLeukocytes\t"+percentage+"%\n");
+			percentage = (float)(Math.random() * maximum);
+			fw.write("PANEL_1\tCD4pos_Tcells\tPROPORTION\tLymphocytes\t"+percentage+"%\n");
+			percentage = (float)(Math.random() * maximum);
+			fw.write("PANEL_1\tCD4pos_Tcells\tMFI\tCD4\t"+percentage+"\n");
+			value = minimum + (int)(Math.random() * maximum);
+			fw.write("PANEL_1\tCD8pos_Tcells\tABSOLUTE\t\t"+value+"\n");
+			percentage = (float)(Math.random() * maximum);
+			fw.write("PANEL_1\tCD8pos_Tcells\tPROPORTION\tLeukocytes\t"+percentage+"%\n");
+			percentage = (float)(Math.random() * maximum);
+			fw.write("PANEL_1\tCD8pos_Tcells\tPROPORTION\tT_CD3pos\t"+percentage+"%\n");
+			percentage = (float)(Math.random() * maximum);
+			fw.write("PANEL_1\tCD8pos_Tcells\tMFI\tCD8\t"+percentage+"\n");
+			value = minimum + (int)(Math.random() * maximum);
+			fw.write("PANEL_1\tCD19pos_Tcells\tABSOLUTE\t\t"+value+"\n");
+			percentage = (float)(Math.random() * maximum);
+			fw.write("PANEL_1\tCD19pos_Tcells\tPROPORTION\tLeukocytes\t"+percentage+"%\n");
+			percentage = (float)(Math.random() * maximum);
+			fw.write("PANEL_1\tCD19pos_Tcells\tPROPORTION\tLymphocytes\t"+percentage+"%\n");
+			percentage = (float)(Math.random() * maximum);
+			fw.write("PANEL_1\tCD19pos_Tcells\tMFI\tCD19\t"+percentage+"\n");
+			value = minimum + (int)(Math.random() * maximum);
+			fw.write("PANEL_1\tCD3negCD56pos_NKcells\tABSOLUTE\t\t"+value+"\n");
+			percentage = (float)(Math.random() * maximum);
+			fw.write("PANEL_1\tCD3negCD56pos_NKcells\tPROPORTION\tLeukocytes\t"+percentage+"%\n");
+			percentage = (float)(Math.random() * maximum);
+			fw.write("PANEL_1\tCD3negCD56pos_NKcells\tPROPORTION\tLymphocytes\t"+percentage+"%\n");
+			percentage = (float)(Math.random() * maximum);
+			fw.write("PANEL_1\tCD3negCD56pos_NKcells\tMFI\tCD56\t"+percentage+"\n");
+			value = minimum + (int)(Math.random() * maximum);
+			fw.write("PANEL_1\tCD3posCD56pos_NKneglikeTcells\tABSOLUTE\t\t"+value+"\n");
+			percentage = (float)(Math.random() * maximum);
+			fw.write("PANEL_1\tCD3posCD56pos_NKneglikeTcells\tPROPORTION\tLeukocytes\t"+percentage+"%\n");
+			percentage = (float)(Math.random() * maximum);
+			fw.write("PANEL_1\tCD3posCD56pos_NKneglikeTcells\tPROPORTION\tLymphocytes\t"+percentage+"%\n");
+			value = minimum + (int)(Math.random() * maximum);
+			fw.write("PANEL_1\tCD56low_CD16high\tABSOLUTE\t\t"+value+"\n");
+			percentage = (float)(Math.random() * maximum);
+			fw.write("PANEL_1\tCD56low_CD16high\tPROPORTION\tLeukocytes\t"+percentage+"%\n");
+			percentage = (float)(Math.random() * maximum);
+			fw.write("PANEL_1\tCD56low_CD16high\tPROPORTION\tLymphocytes\t"+percentage+"%\n");
+			percentage = (float)(Math.random() * maximum);
+			fw.write("PANEL_1\tCD56low_CD16high\tPROPORTION\tNK_cells\t"+percentage+"%\n");
+			value = minimum + (int)(Math.random() * maximum);
+			fw.write("PANEL_1\tCD56high_CD16low\tABSOLUTE\t\t"+value+"\n");
+			percentage = (float)(Math.random() * maximum);
+			fw.write("PANEL_1\tCD56high_CD16low\tPROPORTION\tLeukocytes\t"+percentage+"%\n");
+			percentage = (float)(Math.random() * maximum);
+			fw.write("PANEL_1\tCD56high_CD16low\tPROPORTION\tLymphocytes\t"+percentage+"%\n");
+			percentage = (float)(Math.random() * maximum);
+			fw.write("PANEL_1\tCD56high_CD16low\tPROPORTION\tNK_cells\t"+percentage+"%\n");
+			value = minimum + (int)(Math.random() * maximum);
+			fw.write("PANEL_1\tCD14pos_monocytes\tABSOLUTE\t\t"+value+"\n");
+			percentage = (float)(Math.random() * maximum);
+			fw.write("PANEL_1\tCD14pos_monocytes\tPROPORTION\tLeukocytes\t"+percentage+"%\n");
+			percentage = (float)(Math.random() * maximum);
+			fw.write("PANEL_1\tCD14pos_monocytes\tPROPORTION\tLymphocytes\t"+percentage+"%\n");
+			value = minimum + (int)(Math.random() * maximum);
+			fw.write("PANEL_1\tCD14highCD16neg_classicalMonocytes\tABSOLUTE\t\t"+value+"\n");
+			percentage = (float)(Math.random() * maximum);
+			fw.write("PANEL_1\tCD14highCD16neg_classicalMonocytes\tPROPORTION\tLeukocytes\t"+percentage+"%\n");
+			percentage = (float)(Math.random() * maximum);
+			fw.write("PANEL_1\tCD14highCD16neg_classicalMonocytes\tPROPORTION\tMonocytes\t"+percentage+"%\n");
+			value = minimum + (int)(Math.random() * maximum);
+			fw.write("PANEL_1\tCD14posCD16pos_intermediateMonocytes\tABSOLUTE\t\t"+value+"\n");
+			percentage = (float)(Math.random() * maximum);
+			fw.write("PANEL_1\tCD14posCD16pos_intermediateMonocytes\tPROPORTION\tLeukocytes\t"+percentage+"%\n");
+			percentage = (float)(Math.random() * maximum);
+			fw.write("PANEL_1\tCD14posCD16pos_intermediateMonocytes\tPROPORTION\tMonocytes\t"+percentage+"%\n");
+			value = minimum + (int)(Math.random() * maximum);
+			fw.write("PANEL_1\tCD14lowCD16pos_nonclassicMonocytes\tABSOLUTE\t\t"+value+"\n");
+			percentage = (float)(Math.random() * maximum);
+			fw.write("PANEL_1\tCD14lowCD16pos_nonclassicMonocytes\tPROPORTION\tLeukocytes\t"+percentage+"%\n");
+			percentage = (float)(Math.random() * maximum);
+			fw.write("PANEL_1\tCD14lowCD16pos_nonclassicMonocytes\tPROPORTION\tMonocytes\t"+percentage+"%\n");
+			value = minimum + (int)(Math.random() * maximum);
+			fw.write("PANEL_1\tCD15posCD14low_LDGs\tABSOLUTE\t\t"+value+"\n");
+			percentage = (float)(Math.random() * maximum);
+			fw.write("PANEL_1\tCD15posCD14low_LDGs\tPROPORTION\tLeukocytes\t"+percentage+"%\n");
+			percentage = (float)(Math.random() * maximum);
+			fw.write("PANEL_1\tCD15posCD14low_LDGs\tPROPORTION\tPBMC\t"+percentage+"%\n");
+			value = minimum + (int)(Math.random() * maximum);
+			fw.write("PANEL_1\tCD15lowCD16high_Neutrophils\tABSOLUTE\t\t"+value+"\n");
+			percentage = (float)(Math.random() * maximum);
+			fw.write("PANEL_1\tCD15lowCD16high_Neutrophils\tPROPORTION\tLeukocytes\t"+percentage+"%\n");
+			percentage = (float)(Math.random() * maximum);
+			fw.write("PANEL_1\tCD15lowCD16high_Neutrophils\tPROPORTION\tPMN\t"+percentage+"%\n");
+			value = minimum + (int)(Math.random() * maximum);
+			fw.write("PANEL_1\tCD15highCD16neg_Eosinophils\tABSOLUTE\t\t"+value+"\n");
+			percentage = (float)(Math.random() * maximum);
+			fw.write("PANEL_1\tCD15highCD16neg_Eosinophils\tPROPORTION\tLeukocytes\t"+percentage+"%\n");
+			percentage = (float)(Math.random() * maximum);
+			fw.write("PANEL_1\tCD15highCD16neg_Eosinophils\tPROPORTION\tPMN\t"+percentage+"%\n");
+			percentage = (float)(Math.random() * maximum);
+			fw.write("PANEL_1\tCD4/CD8\tRATIO\t\t"+percentage+"\n");
+
+
+			/*
+			| Data - Panel 2
+			*/
+			value = minimum + (int)(Math.random() * maximum);
+			fw.write("PANEL_2\tLinnegDRposCD11cnegCD123pos_pDC\tABSOLUTE\t\t"+value+"\n");
+			percentage = (float)(Math.random() * maximum);
+			fw.write("PANEL_2\tLinnegDRposCD11cnegCD123pos_pDC\tPROPORTION\tLeukocytes\t"+percentage+"%\n");
+			percentage = (float)(Math.random() * maximum);
+			fw.write("PANEL_2\tLinnegDRposCD11cnegCD123pos_pDC\tPROPORTION\tDrpos_LINneg\t"+percentage+"%\n");
+			value = minimum + (int)(Math.random() * maximum);
+			fw.write("PANEL_2\tLinnegDRposCD11cposCD123negCD1cpos_mDC1\tABSOLUTE\t\t"+value+"\n");
+			percentage = (float)(Math.random() * maximum);
+			fw.write("PANEL_2\tLinnegDRposCD11cposCD123negCD1cpos_mDC1\tPROPORTION\tLeukocytes\t"+percentage+"%\n");
+			percentage = (float)(Math.random() * maximum);
+			fw.write("PANEL_2\tLinnegDRposCD11cposCD123negCD1cpos_mDC1\tPROPORTION\tmDC\t"+percentage+"%\n");
+			value = minimum + (int)(Math.random() * maximum);
+			fw.write("PANEL_2\tLinnegDRposCD11cposCD123negCD141pos_mDC2\tABSOLUTE\t\t"+value+"\n");
+			percentage = (float)(Math.random() * maximum);
+			fw.write("PANEL_2\tLinnegDRposCD11cposCD123negCD141pos_mDC2\tPROPORTION\tLeukocytes\t"+percentage+"%\n");
+			percentage = (float)(Math.random() * maximum);
+			fw.write("PANEL_2\tLinnegDRposCD11cposCD123negCD141pos_mDC2\tPROPORTION\tmDC\t"+percentage+"%\n");
+			value = minimum + (int)(Math.random() * maximum);
+			fw.write("PANEL_2\tLinnegDRnegCD123pos_Basophils\tABSOLUTE\t\t"+value+"\n");
+			percentage = (float)(Math.random() * maximum);
+			fw.write("PANEL_2\tLinnegDRnegCD123pos_Basophils\tPROPORTION\tLeukocytes\t"+percentage+"%\n");
+			percentage = (float)(Math.random() * maximum);
+			fw.write("PANEL_2\tLinnegDRnegCD123pos_Basophils\tPROPORTION\tmDC\t"+percentage+"%\n");
+
+
+
+
+       	
+    		fw.close();
+		}catch (IOException exception){
+    		System.out.println ("Error : " + exception.getMessage());
+		}
+
+
+
+
+		}
+
+
+		
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 	}
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

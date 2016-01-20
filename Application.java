@@ -76,27 +76,146 @@ public class Application{
 		| Procedure 2 | => [APPROVED]
     	/*-----------*/
 
-
-
     	/*
-		| Not tested on experimental data, [IN PROGRESS]
+		| Tested on experimental data, Memory issues
     	*/
 
 
+        /*
+        | Data initialisation
+        */
 
+        /*
+        DataConverter manageFile = new DataConverter();
+        manageFile.convertPatientFile("DATA/INPUT/VIRTUAL_PATIENT_1.dat", "II", "DATA/INPUT/data_converted_PHASE_II_1.data");
+        manageFile.convertPatientFile("DATA/INPUT/VIRTUAL_PATIENT_2.dat", "II", "DATA/INPUT/data_converted_PHASE_II_2.data");
+        manageFile.convertPatientFile("DATA/INPUT/VIRTUAL_PATIENT_3.dat", "II", "DATA/INPUT/data_converted_PHASE_II_3.data");
+        manageFile.convertPatientFile("DATA/INPUT/VIRTUAL_PATIENT_4.dat", "II", "DATA/INPUT/data_converted_PHASE_II_4.data");
+        manageFile.convertPatientFile("DATA/INPUT/VIRTUAL_PATIENT_5.dat", "II", "DATA/INPUT/data_converted_PHASE_II_5.data");
+
+        List<String> listOfFilenames = new ArrayList<String>();
+        listOfFilenames.add("DATA/INPUT/data_converted_PHASE_II_1.data");
+        listOfFilenames.add("DATA/INPUT/data_converted_PHASE_II_2.data");
+        listOfFilenames.add("DATA/INPUT/data_converted_PHASE_II_3.data");
+        listOfFilenames.add("DATA/INPUT/data_converted_PHASE_II_4.data");
+        listOfFilenames.add("DATA/INPUT/data_converted_PHASE_II_5.data");
+
+        manageFile.assembleCohorte(listOfFilenames, "DATA/INPUT/VIRTUAL_COHORTE_1.data");
+
+        //manageFile.generateVirtualPatientFile("DATA/INPUT/VIRTUAL_PATIENT_5.dat", "II", 5);
+
+        */
     	/*
 		| Parameters initialisation
     	*/
+        /*
     	ArrayList<String> iniList = new ArrayList<String>();
     	Integer treshold = 3;
-    	String inputFile = "DATA/INPUT/initData2.data";
-
+    	String inputFile = "DATA/initialDB2.data";
+        */
+        
     	/*
 		| Mining Data
     	*/
+        
+        /*
     	DataManager procedure2 = new DataManager();
     	FPtree fpTree = procedure2.fpTreeConstruction(inputFile, treshold);
+        System.out.println("\n*---Mining---*\n");
     	procedure2.frequentPatternGrowth(fpTree, iniList, treshold);
+        */
+    
+
+
+
+
+        /*------------/*
+        | Procedure 3 | => [IN PROGRESS]
+        /*-----------*/
+
+
+        /*
+        | -> Frequent pattern Growth with projection database 
+        | 
+        */
+
+
+        
+        DataManager procedure3 = new DataManager();
+        System.out.println("*-PREPARE DATA FOR MINING-*");
+
+        ArrayList<String> orderList = new ArrayList<String>();
+        String initialDB = "DATA/initialDB2.data";
+        //String initialDB = "DATA/INPUT/VIRTUAL_COHORTE_1.data";
+        Integer treshold = 3;
+
+        orderList = procedure3.getOrderListOfFrequentItem(initialDB, 3);
+
+        procedure3.reorderDatabase(initialDB, orderList);
+        String sortedDB = "DATA/initialDB2_sorted.data";
+        //String sortedDB = "DATA/INPUT/VIRTUAL_COHORTE_1_sorted.data";
+
+        procedure3.partitionProjection(sortedDB, orderList);
+
+        System.out.println("*-MINING*-");
+
+        for(String item : orderList){
+
+            ArrayList<String> initList = new ArrayList<String>();
+
+            String inputFile = "DATA/PROJECTED_DATABASE/"+item+"_partition_projected_database.data";
+            FPtree fpTree = procedure3.fpTreeConstruction(inputFile, treshold);
+            procedure3.frequentPatternGrowth(fpTree, initList, treshold);
+
+            procedure3.saveResults(item+"_partition_projected_database_results");
+
+        }
+        
+
+
+        /*------------/*
+        | Procedure 4 | => [APPROVED]
+        /*-----------*/
+
+
+        /*
+        | -> Frequent pattern Growth with parralel projection database
+        | 
+        */
+
+        /*
+        
+        DataManager procedure3 = new DataManager();
+        System.out.println("*-PREPARE DATA FOR MINING-*");
+        Integer treshold = 3;
+
+        ArrayList<String> orderList = new ArrayList<String>();
+        String initialDB = "DATA/initialDB2.data";
+        //String initialDB = "DATA/INPUT/VIRTUAL_COHORTE_1.data";
+
+        orderList = procedure3.getOrderListOfFrequentItem(initialDB, 3);
+
+        procedure3.reorderDatabase(initialDB, orderList);
+        String sortedDB = "DATA/initialDB2_sorted.data";
+        //String sortedDB = "DATA/INPUT/VIRTUAL_COHORTE_1_sorted.data";
+
+        procedure3.parralelProjection(sortedDB, orderList);
+
+        System.out.println("*-MINING*-");
+
+        for(String item : orderList){
+
+            ArrayList<String> initList = new ArrayList<String>();
+
+            String inputFile = "DATA/PROJECTED_DATABASE/"+item+"_parralel_projected_database.data";
+            FPtree fpTree = procedure3.fpTreeConstruction(inputFile, treshold);
+            procedure3.frequentPatternGrowth(fpTree, initList, treshold);
+            procedure3.saveResults(item+"_parralel_projected_database_results");
+
+        }
+        
+        */
+
 
     }
 
