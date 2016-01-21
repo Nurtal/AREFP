@@ -544,6 +544,33 @@ public class DataConverter{
 
 
 
+	public void toEnumeratedParameter(){
+		/*
+		* Convert csv patient file to a more
+		* understanding mining format
+		*
+		* =>[ALGO]:
+		*		-> open patient file, for each parameter (i.e line) in file:
+		*			-> attribute a simple id to parameter
+		*
+		*
+		*
+		* [IN PROGRESS]
+		*/
+
+
+
+
+
+
+	}
+
+
+
+
+
+
+
 
 
 	public void generateVirtualPatientFile(String virtualPatientFilename, String phase, Integer idPatient){
@@ -560,7 +587,7 @@ public class DataConverter{
 		* TODO :  -> adapat to phase I & Inception
 		*		  -> Read min & max for random value generation
 		*
-		* [IN PROGRESS]
+		* [APPROVED]
 		*/
 
 

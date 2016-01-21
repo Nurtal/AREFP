@@ -24,6 +24,8 @@ public class Application{
     	
     	//-----------Test Methods--------------------------------------------------
 
+
+        /*
     	DataConverter test = new DataConverter();
     	List<String> listOfPatients = new ArrayList<String>();
     	listOfPatients.add("DATA/patient.num");
@@ -36,7 +38,7 @@ public class Application{
     	//test.enumerate("DATA/cohorte.num", "DATA/cohorteToMine.num");
 
     	test.convertPatientFile("DATA/data_REAL_PHASE_II.csv", "II", "DATA/realPatient.num");
-
+        */
 
 
 
@@ -128,51 +130,6 @@ public class Application{
 
 
 
-
-        /*------------/*
-        | Procedure 3 | => [IN PROGRESS]
-        /*-----------*/
-
-
-        /*
-        | -> Frequent pattern Growth with projection database 
-        | 
-        */
-
-
-        
-        DataManager procedure3 = new DataManager();
-        System.out.println("*-PREPARE DATA FOR MINING-*");
-
-        ArrayList<String> orderList = new ArrayList<String>();
-        String initialDB = "DATA/initialDB2.data";
-        //String initialDB = "DATA/INPUT/VIRTUAL_COHORTE_1.data";
-        Integer treshold = 3;
-
-        orderList = procedure3.getOrderListOfFrequentItem(initialDB, 3);
-
-        procedure3.reorderDatabase(initialDB, orderList);
-        String sortedDB = "DATA/initialDB2_sorted.data";
-        //String sortedDB = "DATA/INPUT/VIRTUAL_COHORTE_1_sorted.data";
-
-        procedure3.partitionProjection(sortedDB, orderList);
-
-        System.out.println("*-MINING*-");
-
-        for(String item : orderList){
-
-            ArrayList<String> initList = new ArrayList<String>();
-
-            String inputFile = "DATA/PROJECTED_DATABASE/"+item+"_partition_projected_database.data";
-            FPtree fpTree = procedure3.fpTreeConstruction(inputFile, treshold);
-            procedure3.frequentPatternGrowth(fpTree, initList, treshold);
-
-            procedure3.saveResults(item+"_partition_projected_database_results");
-
-        }
-        
-
-
         /*------------/*
         | Procedure 4 | => [APPROVED]
         /*-----------*/
@@ -181,6 +138,7 @@ public class Application{
         /*
         | -> Frequent pattern Growth with parralel projection database
         | 
+        | TODO : test on real Data
         */
 
         /*
@@ -215,6 +173,15 @@ public class Application{
         }
         
         */
+
+
+
+
+        Analyse procedureTest = new Analyse("DATA/INPUT/VIRTUAL_COHORTE_1.data", 3);
+
+        procedureTest.usePartitionProjection("DATA/INPUT/VIRTUAL_COHORTE_1.data");
+        //procedureTest.useParralelProjection();
+
 
 
     }

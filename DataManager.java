@@ -937,6 +937,8 @@ public class DataManager{
     	*/
 
 
+		/*
+
 		// Initialise item-projected-database
 		for(String item : orderListOfFrequentItems){
 
@@ -950,6 +952,9 @@ public class DataManager{
 
 		}
 
+		*/
+
+
     	// reverse the list of frequent item
 		Collections.reverse(orderListOfFrequentItems);
 
@@ -962,13 +967,15 @@ public class DataManager{
 			while((patient = bufferedReader.readLine()) != null) {
 				String[] lineInArray = patient.split(" ");
 				ArrayList<String> patientInArray = new ArrayList<String>(Arrays.asList(lineInArray));
-				
+
 				// reverse the list of item in patient
 				Collections.reverse(patientInArray);
 
         		//Loop over item in frequent item list
         		for(String frequentItem : orderListOfFrequentItems){
         			if(patientInArray.contains(frequentItem)){
+
+        				//System.out.println(initialDatabase+" => "+ patient + " [ "+ frequentItem + " ]");
         				
         				// Create a subList from patient
         				ArrayList<String> sublist = new ArrayList<String>();
@@ -989,6 +996,8 @@ public class DataManager{
 						for(String element : sublist){
 							lineToWrite+=element+" ";
 						}
+
+						//System.out.println(patient + " [ "+ lineToWrite + " ] => "+ frequentItem);
 
 						String projectedDatabaseFilename = "DATA/PROJECTED_DATABASE/"+frequentItem+"_partition_projected_database.data";
 						try{
@@ -1012,7 +1021,60 @@ public class DataManager{
       	}catch(IOException ex) {
       		ex.printStackTrace();
       	}
+
+      	// put the order list in the initial order
+		Collections.reverse(orderListOfFrequentItems);
     }
+
+
+
+
+
+
+
+
+
+
+
+    public void initialiseProjectedDatabase(String typeOfProjection, ArrayList<String> orderListOfFrequentItems, String path){
+    	/*
+		* Initiliase projected database file, according to
+		* type of projection and list of frequent items.
+		* 
+		* -> For now only useful before using a partition
+		*    projection method
+		*
+		* -> typeOfProjection could be : "parralel" or "partition" 
+		*
+		* [IN PROGRESS]
+    	*/
+
+
+		//Test if path exist, create it if not
+		File folderToTest = new File(path);
+		if (Files.notExists(folderToTest.toPath())) {
+			new File(path).mkdirs();
+		}
+
+
+    	// Initialise item-projected-database
+		for(String item : orderListOfFrequentItems){
+
+			String projectedDatabaseFilename = path+item+"_"+typeOfProjection+"_projected_database.data";
+			try{
+    			FileWriter fw = new FileWriter (projectedDatabaseFilename);
+    			fw.close();
+			}catch (IOException exception){
+    			System.out.println ("Error : " + exception.getMessage());
+			}
+
+		}
+
+
+    }
+
+
+
 
 
 
@@ -1162,12 +1224,33 @@ public class DataManager{
 		* -> copy all files in DATA/RESULTS to created directory
 		*
 		*
-		* [APPROVED]
+		* [IN PROGRESS] ADAPAT TO NEW PARTITION METHOD
     	*/
 
-		// Create directory
-		(new File("DATA/ALL_RESULTS/"+saveName)).mkdirs();
 
+		//test if directory already exists
+
+
+		System.out.println(saveName);
+
+		/*
+		String[] saveFileInArray = saveName.split("/");
+		ArrayList<String> saveFileInArrayList = new ArrayList<String>(Arrays.asList(saveFileInArray));
+		String saveFolderPath = "";
+		saveFileInArrayList.remove(saveFileInArrayList.size()-1);
+		for(String element : saveFileInArrayList){
+			saveFolderPath+=element+"/";
+		}
+		*/
+
+		File saveFolder = new File(saveName);
+		if(Files.notExists(saveFolder.toPath())){
+			// Create directory
+			saveFolder.mkdirs();
+		}
+
+
+	
 		// List all files to save
 		File folder = new File("DATA/RESULTS/");
 		File[] listOfFiles = folder.listFiles();
@@ -1177,7 +1260,7 @@ public class DataManager{
       		if (listOfFiles[i].isFile()) {
 
         		File source = new File("DATA/RESULTS/"+listOfFiles[i].getName());
-        		File dest = new File("DATA/ALL_RESULTS/"+saveName+"/"+listOfFiles[i].getName());
+        		File dest = new File(saveName+"/"+listOfFiles[i].getName());
 
 				try {
     				Files.copy(source.toPath(), dest.toPath());
