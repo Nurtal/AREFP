@@ -1224,32 +1224,15 @@ public class DataManager{
 		* -> copy all files in DATA/RESULTS to created directory
 		*
 		*
-		* [IN PROGRESS] ADAPAT TO NEW PARTITION METHOD
+		* [APPROVED]
     	*/
 
 
 		//test if directory already exists
-
-
-		System.out.println(saveName);
-
-		/*
-		String[] saveFileInArray = saveName.split("/");
-		ArrayList<String> saveFileInArrayList = new ArrayList<String>(Arrays.asList(saveFileInArray));
-		String saveFolderPath = "";
-		saveFileInArrayList.remove(saveFileInArrayList.size()-1);
-		for(String element : saveFileInArrayList){
-			saveFolderPath+=element+"/";
-		}
-		*/
-
 		File saveFolder = new File(saveName);
 		if(Files.notExists(saveFolder.toPath())){
-			// Create directory
 			saveFolder.mkdirs();
 		}
-
-
 	
 		// List all files to save
 		File folder = new File("DATA/RESULTS/");

@@ -544,26 +544,196 @@ public class DataConverter{
 
 
 
-	public void toEnumeratedParameter(){
+	public void toEnumeratedParameter(String patientFilename){
 		/*
 		* Convert csv patient file to a more
 		* understanding mining format
 		*
 		* =>[ALGO]:
+		*		-> Initialise converted patient file
 		*		-> open patient file, for each parameter (i.e line) in file:
 		*			-> attribute a simple id to parameter
+		*			-> write converted file with the new parameter id
+		*		-> Write correspondance table (parameter to id)
 		*
 		*
+		*
+		* [APPROVED]
+		*/
+
+		//Iinitialise output file
+		String outputFilename = "not defined";
+		String[] inputFilenameInArray = patientFilename.split(".dat");
+		ArrayList<String> inputFilenameInArrayList = new ArrayList<String>(Arrays.asList(inputFilenameInArray));
+		if(inputFilenameInArrayList.isEmpty()){
+			System.out.println("[toEnumeratedParameter] ERROR => can't parse patient filename : "+ patientFilename);
+		}else{
+			outputFilename = inputFilenameInArrayList.get(0)+"_enumerated_parameters.data";
+		}
+		try{
+			FileWriter fw = new FileWriter(outputFilename);
+			fw.close();
+		}catch(IOException exception){
+			System.out.println("Error : " + exception.getMessage());
+		}
+
+		// Parsing Patient File
+		HashMap<String, String> newToOldParameters = new HashMap<String, String>();
+		try{
+			String line = null;
+			Integer newParameterCmpt = 1;
+			FileReader fileReader = new FileReader(patientFilename);
+			BufferedReader bufferedReader = new BufferedReader(fileReader);
+			while((line = bufferedReader.readLine()) != null) {
+				String[] lineInArray;
+				lineInArray = line.split("\t");
+				String lineToWrite = "not defined";
+
+				// Check for first column to parse
+				if(!(lineInArray[1].equals("POPULATION"))){
+					String newParameter = "p"+newParameterCmpt.toString();
+					String oldParameter = lineInArray[1];
+					if(!(newToOldParameters.values().contains(oldParameter))){
+						newToOldParameters.put(newParameter, oldParameter);
+						newParameterCmpt++;
+					}
+				}else{
+					// Catch Header
+					lineToWrite = line;
+				}
+
+				// Check for optionnal 2nd column to parse
+				if(lineInArray[2].equals("PROPORTION")){
+					String newParameter = "p"+newParameterCmpt.toString();
+					String oldParameter = lineInArray[3];
+
+					if(!(newToOldParameters.values().contains(oldParameter))){
+						newToOldParameters.put(newParameter, oldParameter);
+						newParameterCmpt++;
+					}
+				}
+
+				//Prepare line to write in the converted file
+				if(!(lineInArray[1].equals("POPULATION"))){
+					if(lineInArray[2].equals("PROPORTION")){
+						String parameterToWrite1 = "not defined";
+						String parameterToWrite2 = "not defined";
+						for (Map.Entry<String, String> e : newToOldParameters.entrySet()) {
+    						String key = e.getKey();
+    						String value = e.getValue();
+    						if(value.equals(lineInArray[1])){
+    							parameterToWrite1 = key;
+    						}
+    						if(value.equals(lineInArray[3])){
+    							parameterToWrite2 = key;
+    						}
+						}
+						lineToWrite = lineInArray[0]+"\t"+parameterToWrite1+"\t"+lineInArray[2]+"\t"+parameterToWrite2+"\t"+lineInArray[4];
+					}else{
+						String parameterToWrite1 = "not defined";
+						for (Map.Entry<String, String> e : newToOldParameters.entrySet()) {
+    						String key = e.getKey();
+    						String value = e.getValue();
+    						if(value.equals(lineInArray[1])){
+    							parameterToWrite1 = key;
+    						}
+						}
+						lineToWrite = lineInArray[0]+"\t"+parameterToWrite1+"\t"+lineInArray[2]+"\t"+lineInArray[3]+"\t"+lineInArray[4];
+					}
+				}
+
+				// Write converted file
+				try{
+					FileWriter fw = new FileWriter(outputFilename, true);
+					fw.write(lineToWrite+"\n");
+					fw.close();
+				}catch(IOException exception){
+					System.out.println("Error : " + exception.getMessage());
+				}
+			}
+			bufferedReader.close();			
+		}catch(IOException exception){
+			System.out.println ("Error : " + exception.getMessage());
+		}
+
+		// Write correspondance table in PARAMETERS directory
+		inputFilenameInArray = patientFilename.split("/");
+		inputFilenameInArrayList = new ArrayList<String>(Arrays.asList(inputFilenameInArray));
+		String correspondanceFileName = inputFilenameInArrayList.get(inputFilenameInArrayList.size()-1);
+		String[] correspondanceFileNameInArray = correspondanceFileName.split(".dat");
+		ArrayList<String> correspondanceFileNameInArrayList = new ArrayList<String>(Arrays.asList(correspondanceFileNameInArray));
+		if(correspondanceFileNameInArrayList.isEmpty()){
+			System.out.println("[toEnumeratedParameter] ERROR => can't parse patient filename : "+ patientFilename);
+		}else{
+			correspondanceFileName = correspondanceFileNameInArrayList.get(0)+"_table.tmp";
+		}
+		try{
+			FileWriter fw = new FileWriter("DATA/PARAMETERS/"+correspondanceFileName);
+			for (Map.Entry<String, String> e : newToOldParameters.entrySet()) {
+    			String key = e.getKey();
+    			String value = e.getValue();
+    			fw.write(value+";"+key+"\n");
+    		}
+			fw.close();
+		}catch(IOException exception){
+			System.out.println("Error : "+ exception.getMessage());
+		}
+	}
+
+
+
+
+
+
+
+
+
+
+
+
+	public void checkEnumeratedConversion(){
+		/*
+		* Check if toEnumeratedParameter() worked fine,
+		* compare correspondanceFile
+		* 
 		*
 		* [IN PROGRESS]
 		*/
 
 
+		// List all files to check
+		File folder = new File("DATA/PARAMETERS/");
+		File[] listOfFiles = folder.listFiles();
+		ArrayList<File> listOfFilesInFolder = new ArrayList<File>(Arrays.asList(listOfFiles));
+		ArrayList<String> listOfFilesToCheck = new ArrayList<String>();
 
+		for(File file : listOfFilesInFolder){
+
+			String filename = file.toPath().toString();
+			String[] filenameInArray = filename.split("_");
+			ArrayList<String> filenameInArrayList = new ArrayList<String>(Arrays.asList(filenameInArray));
+
+			if(filenameInArrayList.get(filenameInArrayList.size()-1).equals("table.tmp")){
+				listOfFilesToCheck.add(filename);
+			}
+		}
+
+
+
+		for(String filename : listOfFilesToCheck){
+			System.out.println(filename);
+
+		}
 
 
 
 	}
+
+
+
+
+
+
 
 
 
@@ -772,22 +942,6 @@ public class DataConverter{
 
 		}
 
-
-		
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 	}
 
 
@@ -797,7 +951,30 @@ public class DataConverter{
 
 
 
+	public void generateVirtualData(Integer numberOfPatients, String cohorteFilename){
+        /*
+        * Generate a virtual cohorte
+        *
+        *
+        *
+        * [IN PROGRESS]
+        */
 
+        Integer iteration = 1;
+        ArrayList<String> listOfPatientFiles = new ArrayList<String>();
+        while(iteration <= numberOfPatients){
+
+            String patientFileName = "DATA/INPUT/VIRTUAL_PATIENT_"+iteration;
+            String convertedPatientFileName = "DATA/INPUT/VIRTUAL_PATIENT_"+iteration+"_converted.data";
+            generateVirtualPatientFile(patientFileName+".dat", "II", iteration);
+            toEnumeratedParameter(patientFileName+".dat");
+            convertPatientFile("DATA/INPUT/VIRTUAL_PATIENT_"+iteration+"_enumerated_parameters.data", "II", convertedPatientFileName);
+            listOfPatientFiles.add(convertedPatientFileName);
+            iteration++;
+        }
+
+        assembleCohorte(listOfPatientFiles, cohorteFilename);
+    }
 
 
 

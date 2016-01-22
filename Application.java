@@ -41,6 +41,11 @@ public class Application{
         */
 
 
+        DataConverter test = new DataConverter();
+        //test.toEnumeratedParameter("DATA/INPUT/VIRTUAL_PATIENT_3.dat");
+        //test.checkEnumeratedConversion();
+
+        test.generateVirtualData(3, "DATA/INPUT/test_cohorte.data");        
 
     	//-----------Test Procedure------------------------------------------------
     	
@@ -130,56 +135,9 @@ public class Application{
 
 
 
-        /*------------/*
-        | Procedure 4 | => [APPROVED]
-        /*-----------*/
 
-
-        /*
-        | -> Frequent pattern Growth with parralel projection database
-        | 
-        | TODO : test on real Data
-        */
-
-        /*
-        
-        DataManager procedure3 = new DataManager();
-        System.out.println("*-PREPARE DATA FOR MINING-*");
-        Integer treshold = 3;
-
-        ArrayList<String> orderList = new ArrayList<String>();
-        String initialDB = "DATA/initialDB2.data";
-        //String initialDB = "DATA/INPUT/VIRTUAL_COHORTE_1.data";
-
-        orderList = procedure3.getOrderListOfFrequentItem(initialDB, 3);
-
-        procedure3.reorderDatabase(initialDB, orderList);
-        String sortedDB = "DATA/initialDB2_sorted.data";
-        //String sortedDB = "DATA/INPUT/VIRTUAL_COHORTE_1_sorted.data";
-
-        procedure3.parralelProjection(sortedDB, orderList);
-
-        System.out.println("*-MINING*-");
-
-        for(String item : orderList){
-
-            ArrayList<String> initList = new ArrayList<String>();
-
-            String inputFile = "DATA/PROJECTED_DATABASE/"+item+"_parralel_projected_database.data";
-            FPtree fpTree = procedure3.fpTreeConstruction(inputFile, treshold);
-            procedure3.frequentPatternGrowth(fpTree, initList, treshold);
-            procedure3.saveResults(item+"_parralel_projected_database_results");
-
-        }
-        
-        */
-
-
-
-
-        Analyse procedureTest = new Analyse("DATA/INPUT/VIRTUAL_COHORTE_1.data", 3);
-
-        procedureTest.usePartitionProjection("DATA/INPUT/VIRTUAL_COHORTE_1.data");
+        //Analyse procedureTest = new Analyse("DATA/INPUT/VIRTUAL_COHORTE_1.data", 3);
+        //procedureTest.usePartitionProjection("DATA/INPUT/VIRTUAL_COHORTE_1.data");
         //procedureTest.useParralelProjection();
 
 
