@@ -33,298 +33,6 @@ public class DataManager{
 
     
     // ------------------ METHODS ------------------------
-    
-    public void partitionProjection2(String initialDatabase, ArrayList<String> orderListOfFrequentItems){
-    	/*
-		* Perform partition projection of an initial database
-		* Initial database have to be order
-		*
-		* Seems to  bug 
-		*
-		* [OBSOLETE]
-    	*/
-
-
-		/*- Initialise Projected-Database files -*/
-		for(String frequentItem : orderListOfFrequentItems){
-			String projectedDatabaseFilename = "DATA/PROJECTED_DATABASE/"+frequentItem+"_partition_projected_database.data";
-			try{
-    			FileWriter fw = new FileWriter (projectedDatabaseFilename);
-    			fw.close();
-			}catch (IOException exception){
-    			System.out.println ("Error : " + exception.getMessage());
-			}
-		}
-
-
-		/*- Partitionnement -*/
-		/*
-		| -> Pour chaque item dans las liste ordonnes des items frequents:
-		| -> Parcourir les patients dans la database initial
-		| -> Pour chaque patient parser les items du patient, les stocker dans une liste
-		| -> Reverse la liste des items du patients, de maniere a iterer sur les moins frequents
-		| 	 en premier (la database initiale est supposee etre ordonner)
-		| -> Si item frequent courant est reconnu dans les items du patient:
-		| 		=> Determiner les items du patient a partitioner (i.e ce qu'il reste a parcourir dans la liste)
-		|		=> Ouvrir le fichier de la parttition-projected-DB correspondant a l'item frequent actuel
-		|		=> Ecrire le resultat dans le fichier
-		|		=> Retirer le patient de la liste des patients dispo
-		| -> Sinon : 
-		|		=> Passer au patient suivant
-		*/
-
-		ArrayList<Integer> idPatientProjected = new ArrayList<Integer>();
-		for(String frequentItem : orderListOfFrequentItems){
-			Integer currentIdPatient = 0; 
-			String patient = null;
-			try {
-				FileReader fileReader = new FileReader(initialDatabase);
-				BufferedReader bufferedReader = new BufferedReader(fileReader); // Always wrap FileReader in BufferedReader.
-				while((patient = bufferedReader.readLine()) != null) {
-					String[] patientInArray = patient.split("");
-				
-					// reverse the list
-					for (int i = 0; i < patientInArray.length / 2; i++) {
-            			String temp = patientInArray[i]; // swap numbers
-            			patientInArray[i] = patientInArray[patientInArray.length - 1 - i];
-            			patientInArray[patientInArray.length - 1 - i] = temp;
-
-        			}
-
-        			// loop over reverse list
-        			int indexOfItemInPatient = 0;
-					for(String item : patientInArray){
-
-						if(item.equals(frequentItem) && !(idPatientProjected.contains(currentIdPatient))){
-
-							String[] toPartition = Arrays.copyOfRange(patientInArray, indexOfItemInPatient, patientInArray.length);
-							String toPartitionInString = "";
-							
-							// Reverse list of item
-							for (int i = 0; i < toPartition.length / 2; i++) {
-            					String temp = toPartition[i]; // swap numbers
-            					toPartition[i] = toPartition[toPartition.length - 1 - i];
-            					toPartition[toPartition.length - 1 - i] = temp;
-        					}
-
-        					// Convert to String
-        					for(String eltToAdd : toPartition){
-								toPartitionInString+=eltToAdd;
-							}
-
-
-							// Delete last item (i.e current item)
-							toPartitionInString = toPartitionInString.substring(0, toPartitionInString.length()-1);
-							idPatientProjected.add(currentIdPatient);
-
-
-
-							/*- Write projection in file -*/
-							String projectedDatabaseFilename = "DATA/PROJECTED_DATABASE/"+item+"_partition_projected_database.data";
-							try{
-    							FileWriter fw = new FileWriter (projectedDatabaseFilename, true);
-    							fw.write(toPartitionInString+"\n");
-    							fw.close();
-							}catch (IOException exception){
-    							System.out.println ("Error : " + exception.getMessage());
-							}
-
-							// Break the loop 
-							break;
-						}
-						indexOfItemInPatient++;
-					}
-					currentIdPatient++;
-				}
-				bufferedReader.close();         
-			}
-			catch(FileNotFoundException ex) {
-			System.out.println("Unable to open file '" + initialDatabase + "'");                
-      		}
-      		catch(IOException ex) {
-      			ex.printStackTrace();
-      		}
-      	}
-    }
-
-
-
-
-    public void parralelProjection(String initialDatabase, ArrayList<String> orderListOfFrequentItems){
-    	/*
-		* Perform parralel projection of an initial database
-		* Initial database have to be order
-		*
-		* [APPROVED]
-    	*/
-
-
-		/*- Initialise Projected-Database files -*/
-		for(String frequentItem : orderListOfFrequentItems){
-			String projectedDatabaseFilename = "DATA/PROJECTED_DATABASE/"+frequentItem+"_parralel_projected_database.data";
-			try{
-    			FileWriter fw = new FileWriter (projectedDatabaseFilename);
-    			fw.close();
-			}catch (IOException exception){
-    			System.out.println ("Error : " + exception.getMessage());
-			}
-		}
-
-
-		/*- Partitionnement -*/
-		/*
-		| -> Pour chaque item dans las liste ordonnes des items frequents:
-		| -> Parcourir les patients dans la database initial
-		| -> Pour chaque patient parser les items du patient, les stocker dans une liste
-		| -> Reverse la liste des items du patients, de maniere a iterer sur les moins frequents
-		| 	 en premier (la database initiale est supposee etre ordonner)
-		| -> Si item frequent courant est reconnu dans les items du patient:
-		| 		=> Determiner les items du patient a partitioner (i.e ce qu'il reste a parcourir dans la liste)
-		|		=> Ouvrir le fichier de la parttition-projected-DB correspondant a l'item frequent actuel
-		|		=> Ecrire le resultat dans le fichier
-		| -> Sinon : 
-		|		=> Passer au patient suivant
-		*/
-
-
-		for(String frequentItem : orderListOfFrequentItems){
-			Integer currentIdPatient = 0; 
-			String patient = null;
-			try {
-				FileReader fileReader = new FileReader(initialDatabase);
-				BufferedReader bufferedReader = new BufferedReader(fileReader); // Always wrap FileReader in BufferedReader.
-				while((patient = bufferedReader.readLine()) != null) {
-					String[] patientInArray = patient.split(" ");
-				
-					// reverse the list
-					for (int i = 0; i < patientInArray.length / 2; i++) {
-            			String temp = patientInArray[i]; // swap numbers
-            			patientInArray[i] = patientInArray[patientInArray.length - 1 - i];
-            			patientInArray[patientInArray.length - 1 - i] = temp;
-        			}
-
-        			// loop over reverse list
-        			int indexOfItemInPatient = 0;
-					for(String item : patientInArray){
-						
-						if(item.equals(frequentItem)){
-							String[] toPartition = Arrays.copyOfRange(patientInArray, indexOfItemInPatient, patientInArray.length);
-							String toPartitionInString = "";
-							
-							// Reverse list of item
-							for (int i = 0; i < toPartition.length / 2; i++) {
-            					String temp = toPartition[i]; // swap numbers
-            					toPartition[i] = toPartition[toPartition.length - 1 - i];
-            					toPartition[toPartition.length - 1 - i] = temp;
-        					}
-
-
-
-        					// Delete last item (i.e current item)
-        					ArrayList<String> toPartition2 = new ArrayList<String>(Arrays.asList(toPartition));
-        					toPartition2.remove(toPartition2.size() - 1);
-
-        					// Convert to String
-        					for(String eltToAdd : toPartition2){
-								toPartitionInString+=eltToAdd+" ";
-							}
-
-							// Delete last item (i.e current item)
-							//toPartitionInString = toPartitionInString.substring(0, toPartitionInString.length()-1);
-
-							/*- Write projection in file -*/
-							String projectedDatabaseFilename = "DATA/PROJECTED_DATABASE/"+item+"_parralel_projected_database.data";
-							try{
-    							FileWriter fw = new FileWriter (projectedDatabaseFilename, true);
-    							fw.write(toPartitionInString+"\n");
-    							fw.close();
-							}catch (IOException exception){
-    							System.out.println ("Error : " + exception.getMessage());
-							}
-
-							// Break the loop 
-							break;
-						}
-						indexOfItemInPatient++;
-					}
-					currentIdPatient++;
-				}
-				bufferedReader.close();         
-			}
-			catch(FileNotFoundException ex) {
-			System.out.println("Unable to open file '" + initialDatabase + "'");                
-      		}
-      		catch(IOException ex) {
-      			ex.printStackTrace();
-      		}
-      	}
-    }
-
-
-
-
-    public HashMap<String, Integer> buildFPtree(String databaseFilename, Integer supportTreshold){
-    	/*
-		* build FPtree from database
-		* return hasmap <node, support>, unsorted
-		*
-		* homeMade implementation
-		*
-		* [SEEMS TO BE OK]
-    	*/
-
-		HashMap<String, Integer> itemToSupport = new HashMap<String, Integer>();
-
-		/*
-		| Determinate frequence of items
-		*/
-		String patient = null;
-		try {
-			FileReader fileReader = new FileReader(databaseFilename);
-			BufferedReader bufferedReader = new BufferedReader(fileReader); // Always wrap FileReader in BufferedReader.
-			while((patient = bufferedReader.readLine()) != null) {
-				String[] patientInArray = patient.split("");
-				for(String item : patientInArray){
-
-					if(!item.equals("")){
-						if(itemToSupport.keySet().contains(item)){
-							Integer support = itemToSupport.get(item);
-							support++;
-							itemToSupport.put(item, support);
-						}else{
-							Integer support = 1;
-							itemToSupport.put(item, support);
-						}
-					}
-				}
-			}
-		}catch(FileNotFoundException ex) {
-			System.out.println("Unable to open file '" + databaseFilename + "'");                
-      	}catch(IOException ex) {
-      		ex.printStackTrace();
-      	}
-      	//System.out.println(itemToSupport);
-
-
-      	/*
-		| -> Test if item is frequent (i.e if frequence >= treshold)
-      	*/
-		ArrayList<String> itemToRemove = new ArrayList<String>();
-		for(String item : itemToSupport.keySet()){
-			if(itemToSupport.get(item) < supportTreshold){
-				itemToRemove.add(item);
-			}
-
-
-		}
-		for(String key : itemToRemove){
-			itemToSupport.remove(key);
-		}
-
-		return itemToSupport;
-    }
-
-
 
 
     public ArrayList<String> sortHashMapByValues(HashMap<String, Integer> passedMap) {
@@ -589,48 +297,7 @@ public class DataManager{
 
 
 
-    public void recursiveMiningProcess(FPtree tree, ArrayList<String> itemInTree, Integer treeshold){
-    	/*
-		* Mining FP-tree, implementation from publication
-		* -> Unlike the frequentPatternGrowyh method, this method
-		*    is based only on recursivity mining, there is no
-		*	 different strategy for single prefix-path FP-tree.
-		*
-		* -> Implementation mostly for debugging, supposed to be less
-		* 	 efficient than frequentPatternGrowth method.
-    	*/
 
-
-		ArrayList<String> table = sortHashMapByValues(tree.headerTable);
-		Collections.reverse(table);
-
-		for(String item : table){
-
-			// Generate pattern beta
-			ArrayList<String> pattern = new	ArrayList<String>();
-			pattern.add(item);
-			for(String element : itemInTree){
-				if(!(element.equals(""))){
-					pattern.add(element);
-				}
-			}
-			String patternInString = "";
-			for(String element : pattern){
-				patternInString += element;
-			}
-				
-			//Construct Beta conditional pattern-base
-			createConditionalDB(tree, pattern);
-			String conditionalDatabaseFilename = "DATA/CONDITIONAL_DATABASE/"+patternInString+"_conditionalDB.data";
-
-			//construct Beta conditional FP-tree
-			FPtree conditionalFPtree = fpTreeConstruction(conditionalDatabaseFilename, treeshold);
-
-			if(!(conditionalFPtree.nodes.isEmpty())){
-				recursiveMiningProcess(conditionalFPtree, pattern, treeshold);
-			}
-		}
-    }
 
 
 
@@ -672,23 +339,10 @@ public class DataManager{
 				itemForCombination.add(element);
 			}
 			
-
-
-
 			for(Node node : tree.nodes){
-
 				//No need to control frequency, according to Lemma 3.2
-				/*
-				if(node.count >= treeshold){ 
-					itemForCombination.add(node.name);
-				}
-				*/
 				itemForCombination.add(node.name);
 			}
-
-
-
-
 
 			String[] listOfelements = itemForCombination.toArray(new String[0]);
 			int[] indices;		
@@ -811,7 +465,6 @@ public class DataManager{
     	*/
 
 
-
 		/*
 		| -> Create a String representation for pattern
 		| -> Generating the set of branch (i.e Paths) containing
@@ -834,7 +487,6 @@ public class DataManager{
 		}catch (IOException exception){
     		System.out.println ("Error : " + exception.getMessage());
 		}
-
 
 
 		/*
@@ -913,7 +565,7 @@ public class DataManager{
 
 
 
-    public void partitionProjection (String initialDatabase, ArrayList<String> orderListOfFrequentItems){
+    public void partitionProjection(String initialDatabase, ArrayList<String> orderListOfFrequentItems, String outputFolder){
     	/*
 		* perform a partition projection
 		*
@@ -937,26 +589,9 @@ public class DataManager{
     	*/
 
 
-		/*
-
-		// Initialise item-projected-database
-		for(String item : orderListOfFrequentItems){
-
-			String projectedDatabaseFilename = "DATA/PROJECTED_DATABASE/"+item+"_partition_projected_database.data";
-			try{
-    			FileWriter fw = new FileWriter (projectedDatabaseFilename);
-    			fw.close();
-			}catch (IOException exception){
-    			System.out.println ("Error : " + exception.getMessage());
-			}
-
-		}
-
-		*/
-
-
     	// reverse the list of frequent item
 		Collections.reverse(orderListOfFrequentItems);
+
 
 		String patient = null;
     	try {
@@ -965,6 +600,8 @@ public class DataManager{
 
 			//Loop over Patient
 			while((patient = bufferedReader.readLine()) != null) {
+
+
 				String[] lineInArray = patient.split(" ");
 				ArrayList<String> patientInArray = new ArrayList<String>(Arrays.asList(lineInArray));
 
@@ -975,7 +612,7 @@ public class DataManager{
         		for(String frequentItem : orderListOfFrequentItems){
         			if(patientInArray.contains(frequentItem)){
 
-        				//System.out.println(initialDatabase+" => "+ patient + " [ "+ frequentItem + " ]");
+        				//System.out.println(initialDatabase+" => "+ patientInArray + " [ "+ frequentItem + " ]");
         				
         				// Create a subList from patient
         				ArrayList<String> sublist = new ArrayList<String>();
@@ -999,7 +636,11 @@ public class DataManager{
 
 						//System.out.println(patient + " [ "+ lineToWrite + " ] => "+ frequentItem);
 
-						String projectedDatabaseFilename = "DATA/PROJECTED_DATABASE/"+frequentItem+"_partition_projected_database.data";
+						//String projectedDatabaseFilename = outputFolder+frequentItem+"_partition_projected_database.data";
+						String projectedDatabaseFilename = outputFolder+frequentItem+"_ppd.data";
+
+						//System.out.println("=> " +projectedDatabaseFilename);
+
 						try{
     						FileWriter fw = new FileWriter (projectedDatabaseFilename, true);
     						fw.write(lineToWrite+"\n");
@@ -1025,56 +666,6 @@ public class DataManager{
       	// put the order list in the initial order
 		Collections.reverse(orderListOfFrequentItems);
     }
-
-
-
-
-
-
-
-
-
-
-
-    public void initialiseProjectedDatabase(String typeOfProjection, ArrayList<String> orderListOfFrequentItems, String path){
-    	/*
-		* Initiliase projected database file, according to
-		* type of projection and list of frequent items.
-		* 
-		* -> For now only useful before using a partition
-		*    projection method
-		*
-		* -> typeOfProjection could be : "parralel" or "partition" 
-		*
-		* [IN PROGRESS]
-    	*/
-
-
-		//Test if path exist, create it if not
-		File folderToTest = new File(path);
-		if (Files.notExists(folderToTest.toPath())) {
-			new File(path).mkdirs();
-		}
-
-
-    	// Initialise item-projected-database
-		for(String item : orderListOfFrequentItems){
-
-			String projectedDatabaseFilename = path+item+"_"+typeOfProjection+"_projected_database.data";
-			try{
-    			FileWriter fw = new FileWriter (projectedDatabaseFilename);
-    			fw.close();
-			}catch (IOException exception){
-    			System.out.println ("Error : " + exception.getMessage());
-			}
-
-		}
-
-
-    }
-
-
-
 
 
 
@@ -1227,7 +818,6 @@ public class DataManager{
 		* [APPROVED]
     	*/
 
-
 		//test if directory already exists
 		File saveFolder = new File(saveName);
 		if(Files.notExists(saveFolder.toPath())){
@@ -1245,11 +835,13 @@ public class DataManager{
         		File source = new File("DATA/RESULTS/"+listOfFiles[i].getName());
         		File dest = new File(saveName+"/"+listOfFiles[i].getName());
 
-				try {
+				try{
     				Files.copy(source.toPath(), dest.toPath());
 				}catch (IOException e) {
    		 			e.printStackTrace();
 				}
+
+				
       		}
       	}
     }
@@ -1260,11 +852,211 @@ public class DataManager{
 
 
 
+    // ------------------ WORK IN PROGRESS ------------------------
+
+
+
+    public void initialiseProjectedDatabase(String typeOfProjection, ArrayList<String> orderListOfFrequentItems, String path){
+    	/*
+		* Initiliase projected database file, according to
+		* type of projection and list of frequent items.
+		* 
+		* -> For now only useful before using a partition
+		*    projection method
+		*
+		* -> typeOfProjection could be : "parralel" or "partition" 
+		*
+		* [IN PROGRESS]
+    	*/
+
+
+		//Test if path exist, create it if not
+		File folderToTest = new File(path);
+		if (Files.notExists(folderToTest.toPath())) {
+			new File(path).mkdirs();
+		}
+
+    	// Initialise item-projected-database
+		for(String item : orderListOfFrequentItems){
+
+			String projectedDatabaseFilename = path+item+"_"+typeOfProjection+"_projected_database.data";
+			try{
+    			FileWriter fw = new FileWriter (projectedDatabaseFilename);
+    			fw.close();
+			}catch (IOException exception){
+    			System.out.println ("Error : " + exception.getMessage());
+			}
+
+		}
+    }
 
 
 
 
 
+
+     public void recursiveMiningProcess(FPtree tree, ArrayList<String> itemInTree, Integer treeshold){
+    	/*
+		* Mining FP-tree, implementation from publication
+		* -> Unlike the frequentPatternGrowyh method, this method
+		*    is based only on recursivity mining, there is no
+		*	 different strategy for single prefix-path FP-tree.
+		*
+		* -> Implementation mostly for debugging, supposed to be less
+		* 	 efficient than frequentPatternGrowth method.
+		*
+		*
+		* [UNUSED]
+    	*/
+
+
+		ArrayList<String> table = sortHashMapByValues(tree.headerTable);
+		Collections.reverse(table);
+
+		for(String item : table){
+
+			// Generate pattern beta
+			ArrayList<String> pattern = new	ArrayList<String>();
+			pattern.add(item);
+			for(String element : itemInTree){
+				if(!(element.equals(""))){
+					pattern.add(element);
+				}
+			}
+			String patternInString = "";
+			for(String element : pattern){
+				patternInString += element;
+			}
+				
+			//Construct Beta conditional pattern-base
+			createConditionalDB(tree, pattern);
+			String conditionalDatabaseFilename = "DATA/CONDITIONAL_DATABASE/"+patternInString+"_conditionalDB.data";
+
+			//construct Beta conditional FP-tree
+			FPtree conditionalFPtree = fpTreeConstruction(conditionalDatabaseFilename, treeshold);
+
+			if(!(conditionalFPtree.nodes.isEmpty())){
+				recursiveMiningProcess(conditionalFPtree, pattern, treeshold);
+			}
+		}
+    }
+
+
+
+
+
+
+
+
+     public void parralelProjection(String initialDatabase, ArrayList<String> orderListOfFrequentItems){
+    	/*
+		* Perform parralel projection of an initial database
+		* Initial database have to be order
+		*
+		* [TO CHECK]
+    	*/
+
+
+		/*- Initialise Projected-Database files -*/
+		for(String frequentItem : orderListOfFrequentItems){
+			String projectedDatabaseFilename = "DATA/PROJECTED_DATABASE/"+frequentItem+"_parralel_projected_database.data";
+			try{
+    			FileWriter fw = new FileWriter (projectedDatabaseFilename);
+    			fw.close();
+			}catch (IOException exception){
+    			System.out.println ("Error : " + exception.getMessage());
+			}
+		}
+
+
+		/*- Partitionnement -*/
+		/*
+		| -> Pour chaque item dans las liste ordonnes des items frequents:
+		| -> Parcourir les patients dans la database initial
+		| -> Pour chaque patient parser les items du patient, les stocker dans une liste
+		| -> Reverse la liste des items du patients, de maniere a iterer sur les moins frequents
+		| 	 en premier (la database initiale est supposee etre ordonner)
+		| -> Si item frequent courant est reconnu dans les items du patient:
+		| 		=> Determiner les items du patient a partitioner (i.e ce qu'il reste a parcourir dans la liste)
+		|		=> Ouvrir le fichier de la parttition-projected-DB correspondant a l'item frequent actuel
+		|		=> Ecrire le resultat dans le fichier
+		| -> Sinon : 
+		|		=> Passer au patient suivant
+		*/
+
+
+		for(String frequentItem : orderListOfFrequentItems){
+			Integer currentIdPatient = 0; 
+			String patient = null;
+			try {
+				FileReader fileReader = new FileReader(initialDatabase);
+				BufferedReader bufferedReader = new BufferedReader(fileReader); // Always wrap FileReader in BufferedReader.
+				while((patient = bufferedReader.readLine()) != null) {
+					String[] patientInArray = patient.split(" ");
+				
+					// reverse the list
+					for (int i = 0; i < patientInArray.length / 2; i++) {
+            			String temp = patientInArray[i]; // swap numbers
+            			patientInArray[i] = patientInArray[patientInArray.length - 1 - i];
+            			patientInArray[patientInArray.length - 1 - i] = temp;
+        			}
+
+        			// loop over reverse list
+        			int indexOfItemInPatient = 0;
+					for(String item : patientInArray){
+						
+						if(item.equals(frequentItem)){
+							String[] toPartition = Arrays.copyOfRange(patientInArray, indexOfItemInPatient, patientInArray.length);
+							String toPartitionInString = "";
+							
+							// Reverse list of item
+							for (int i = 0; i < toPartition.length / 2; i++) {
+            					String temp = toPartition[i]; // swap numbers
+            					toPartition[i] = toPartition[toPartition.length - 1 - i];
+            					toPartition[toPartition.length - 1 - i] = temp;
+        					}
+
+
+
+        					// Delete last item (i.e current item)
+        					ArrayList<String> toPartition2 = new ArrayList<String>(Arrays.asList(toPartition));
+        					toPartition2.remove(toPartition2.size() - 1);
+
+        					// Convert to String
+        					for(String eltToAdd : toPartition2){
+								toPartitionInString+=eltToAdd+" ";
+							}
+
+							// Delete last item (i.e current item)
+							//toPartitionInString = toPartitionInString.substring(0, toPartitionInString.length()-1);
+
+							/*- Write projection in file -*/
+							String projectedDatabaseFilename = "DATA/PROJECTED_DATABASE/"+item+"_parralel_projected_database.data";
+							try{
+    							FileWriter fw = new FileWriter (projectedDatabaseFilename, true);
+    							fw.write(toPartitionInString+"\n");
+    							fw.close();
+							}catch (IOException exception){
+    							System.out.println ("Error : " + exception.getMessage());
+							}
+
+							// Break the loop 
+							break;
+						}
+						indexOfItemInPatient++;
+					}
+					currentIdPatient++;
+				}
+				bufferedReader.close();         
+			}
+			catch(FileNotFoundException ex) {
+			System.out.println("Unable to open file '" + initialDatabase + "'");                
+      		}
+      		catch(IOException ex) {
+      			ex.printStackTrace();
+      		}
+      	}
+    }
 
 
 

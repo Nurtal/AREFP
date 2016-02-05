@@ -17,9 +17,7 @@ public class FPtree{
     
     // ------------------- FIELDS ------------------------
     
-  	//public ArrayList<Node> nodes;
   	public HashSet<Node> nodes;
-  	//public ArrayList<String> headerTable;
   	public HashMap<String, Integer> headerTable;
   	public ArrayList<Node> branch;
 
@@ -131,7 +129,6 @@ public class FPtree{
 
 				//System.out.println(pattern +" => "+ itemToRetrieve +"\t"+ listOfNodeNameInBranch);
 
-
 				if(branchCanBeSave){
 					setOfBranch.add(this.branch);
 				}
@@ -140,8 +137,6 @@ public class FPtree{
 
 		return setOfBranch;
     }
-
-
 
 
 

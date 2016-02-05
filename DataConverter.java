@@ -719,7 +719,7 @@ public class DataConverter{
 		}
 
 
-
+		// Make comparaison [NOT IMPLEMENTED YET] 
 		for(String filename : listOfFilesToCheck){
 			System.out.println(filename);
 
@@ -957,7 +957,7 @@ public class DataConverter{
         *
         *
         *
-        * [IN PROGRESS]
+        * [APPROVED]
         */
 
         Integer iteration = 1;
