@@ -604,6 +604,9 @@ public class DataManager{
 
 				String[] lineInArray = patient.split(" ");
 				ArrayList<String> patientInArray = new ArrayList<String>(Arrays.asList(lineInArray));
+				String lastFrequentItemInPatient;
+
+
 
 				// reverse the list of item in patient
 				Collections.reverse(patientInArray);
@@ -612,14 +615,33 @@ public class DataManager{
         		for(String frequentItem : orderListOfFrequentItems){
         			if(patientInArray.contains(frequentItem)){
 
-        				//System.out.println(initialDatabase+" => "+ patientInArray + " [ "+ frequentItem + " ]");
+        				lastFrequentItemInPatient = frequentItem;
+
+        				// [DEBUG]
+						// test if the retrieve item is the last frequent item in patient
+						ArrayList<String> sublistEndPatient = new ArrayList<String>();
+						sublistEndPatient = new ArrayList<String>(patientInArray.subList(0, patientInArray.indexOf(frequentItem)));
+						Collections.reverse(sublistEndPatient);
+						//System.out.println(sublistEndPatient + " || " + orderListOfFrequentItems);
+						for(String lastItemToCheck : sublistEndPatient){
+							if(orderListOfFrequentItems.contains(lastItemToCheck)){
+								lastFrequentItemInPatient = lastItemToCheck;
+							}
+						}
+
+
+        				//System.out.println(initialDatabase+" => "+ patientInArray + " [ "+ lastFrequentItemInPatient + " ]");
         				
         				// Create a subList from patient
         				ArrayList<String> sublist = new ArrayList<String>();
-						sublist = new ArrayList<String>(patientInArray.subList(patientInArray.indexOf(frequentItem), patientInArray.size()));
+						//sublist = new ArrayList<String>(patientInArray.subList(patientInArray.indexOf(frequentItem), patientInArray.size()));
+						sublist = new ArrayList<String>(patientInArray.subList(patientInArray.indexOf(lastFrequentItemInPatient), patientInArray.size()));
+
 
 						//Remove used item in patient
-						sublist.remove(frequentItem);
+						//sublist.remove(frequentItem);
+						sublist.remove(lastFrequentItemInPatient);
+
 
 						/*- Write projection in file -
 						| -> Convert sublist in String & Reverse sublist, conserve descending order of frequency
@@ -636,8 +658,14 @@ public class DataManager{
 
 						//System.out.println(patient + " [ "+ lineToWrite + " ] => "+ frequentItem);
 
-						//String projectedDatabaseFilename = outputFolder+frequentItem+"_partition_projected_database.data";
-						String projectedDatabaseFilename = outputFolder+frequentItem+"_ppd.data";
+
+
+
+						//String projectedDatabaseFilename = outputFolder+frequentItem+"_ppd.data";
+						String projectedDatabaseFilename = outputFolder+lastFrequentItemInPatient+"_ppd.data";
+
+						//System.out.println(initialDatabase+" => "+ patientInArray + " [ "+ lastFrequentItemInPatient + " ]" + " || " + lineToWrite + " => " + projectedDatabaseFilename);
+
 
 						//System.out.println("=> " +projectedDatabaseFilename);
 
@@ -716,6 +744,27 @@ public class DataManager{
       	}catch(IOException ex) {
       		ex.printStackTrace();
       	}
+
+
+
+      	//Write Data in a Parameter File
+      	try{
+      		FileWriter fw = new FileWriter("DATA/PARAMETERS/test.tmp");
+      		for(String item : itemToSupport.keySet()){
+      			//System.out.println(item+";"+itemToSupport.get(item));
+				if(itemToSupport.get(item) >= treshold){
+					fw.write(item+";"+itemToSupport.get(item));
+					//System.out.println(item+";"+itemToSupport.get(item));
+				}
+			}
+      		fw.close();
+      	}catch(IOException exception){
+      		System.out.println("[getOrderListOfFrequentItem][ERROR] : "+ exception.getMessage());
+      	}
+
+
+
+
 
       	// Test if item is frequent
       	ArrayList<String> itemToRemove = new ArrayList<String>();
@@ -852,6 +901,61 @@ public class DataManager{
 
 
 
+
+
+    public Integer getSupport(ArrayList<String> pattern, String cohorteFilename){
+    	/*
+    	* Get support of a pattern (i.e  a list of items)
+    	* in a cohorte file
+    	*
+    	*
+    	* [APPROVED]
+    	*/
+
+    	Integer support = 0;
+
+    	try{
+
+    		FileReader fileReader = new FileReader(cohorteFilename);
+    		BufferedReader bufferedReader = new BufferedReader(fileReader); // Always wrap FileReader in BufferedReader.
+    		String patient = null;
+    		
+    		while((patient = bufferedReader.readLine()) != null){
+    			String[] patientInArray = patient.split(" ");
+    			ArrayList<String> patientInArrayList = new ArrayList<String>(Arrays.asList(patientInArray));
+    			boolean patternIsInPatient = true;
+    			
+    			for(String item : pattern){
+    				if(!(patientInArrayList.contains(item))){
+    					patternIsInPatient = false;
+    				}
+    			}
+
+    			if(patternIsInPatient){
+    				support++;
+    			}
+    		}
+
+    		fileReader.close();
+
+    	}catch(IOException exception){
+    		System.out.println("[GET SUPPORT][ERROR]: "+exception.getMessage());
+    	}
+
+    	return support;
+    }
+
+
+
+
+
+
+
+
+
+
+
+
     // ------------------ WORK IN PROGRESS ------------------------
 
 
@@ -867,6 +971,7 @@ public class DataManager{
 		* -> typeOfProjection could be : "parralel" or "partition" 
 		*
 		* [IN PROGRESS]
+		* [USED]
     	*/
 
 
@@ -879,7 +984,8 @@ public class DataManager{
     	// Initialise item-projected-database
 		for(String item : orderListOfFrequentItems){
 
-			String projectedDatabaseFilename = path+item+"_"+typeOfProjection+"_projected_database.data";
+			//String projectedDatabaseFilename = path+item+"_"+typeOfProjection+"_projected_database.data";
+			String projectedDatabaseFilename = path+item+"_ppd.data";
 			try{
     			FileWriter fw = new FileWriter (projectedDatabaseFilename);
     			fw.close();
@@ -1057,6 +1163,27 @@ public class DataManager{
       		}
       	}
     }
+
+
+
+
+
+
+
+
+
+
+    
+
+
+
+
+
+
+
+
+
+
 
 
 

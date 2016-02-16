@@ -983,4 +983,90 @@ public class DataConverter{
 
 
 
+
+
+
+
+
+
+    public void backConversionFromEnumeration(String inputFilename, String parameterFilename, String outputFilename){
+
+    	/*
+    	* Convert enumerated parameters to original
+    	* ones. Actually implemented for frequentPattern file
+    	* (i.e : adter the mining process)
+    	*
+    	*
+    	*
+    	* [APPROVED]
+    	*/
+
+
+    	//Initialise output
+    	try{
+    		FileWriter fw = new FileWriter(outputFilename);
+    		fw.close();
+    	}catch(IOException exception){
+    		System.out.println("[backConversionFromEnumeration][ERROR] :"+ exception.getMessage());
+    	}
+
+    	String convertedValue = "";
+    	String index = "";
+
+    	try{
+
+    		String line = null;
+    		FileReader fileReader = new FileReader(inputFilename);
+    		BufferedReader bufferedReader = new BufferedReader(fileReader);
+    		while((line = bufferedReader.readLine()) != null) {
+    			String convertedLine = line;
+    			String[] lineInArray = line.split("p");
+    			ArrayList<String> lineInArrayList = new ArrayList<String>(Arrays.asList(lineInArray));
+
+    			for(String wordOfInterest : lineInArrayList){
+    				String[] wordOfInterestInArray = wordOfInterest.split("_");
+    				if(wordOfInterestInArray.length > 1 ){
+    					index = wordOfInterestInArray[0];
+
+    					try{
+    						String parameterLine = null;
+    						FileReader fileReaderParameters = new FileReader(parameterFilename);
+    						BufferedReader bufferedReaderParameters = new BufferedReader(fileReaderParameters);
+    						while((parameterLine = bufferedReaderParameters.readLine()) != null) {
+    							String[] parameterLineInArray = parameterLine.split(";");
+    							String refIndex = parameterLineInArray[1];
+    							refIndex = refIndex.replaceAll("p", "");
+    							String indexValue = parameterLineInArray[0];
+    							if(refIndex.equals(index)){
+    								convertedValue = indexValue;
+    							}
+    						}
+
+    						fileReaderParameters.close();
+
+    					}catch(IOException exception2){
+    						System.out.println("[backConversionFromEnumeration][ERROR] :"+ exception2.getMessage());
+    					}
+
+    					index = "p"+index;
+    					convertedLine = convertedLine.replaceAll(index, convertedValue);
+    				}
+    			}
+
+    			try{
+    				FileWriter fw = new FileWriter(outputFilename, true);
+    				fw.write(convertedLine+"\n");
+    				fw.close();
+    			}catch(IOException exception3){
+    				System.out.println("[backConversionFromEnumeration][ERROR] :"+ exception3.getMessage());
+    			}
+    		}
+
+    		fileReader.close();
+
+    	}catch(IOException exception){
+    		System.out.println("[backConversionFromEnumeration][ERROR] :"+ exception.getMessage());
+    	}
+    }
+
 }
